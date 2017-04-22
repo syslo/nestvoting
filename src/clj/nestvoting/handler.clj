@@ -2,8 +2,9 @@
   (:require [compojure.core :refer [GET defroutes]]
             [compojure.route :refer [not-found resources]]
             [hiccup.page :refer [include-js include-css html5]]
+            [ring.middleware.json :refer [wrap-json-response]]
             [nestvoting.middleware :refer [wrap-middleware]]
-            [nestvoting.config :refer [profile]]))
+            [nestvoting.config :refer [profile frontend-config]]))
 
 (def mount-target
   [:div#app
@@ -30,8 +31,12 @@
 (defroutes routes
   (GET "/" [] (loading-page))
   (GET "/about" [] (loading-page))
+
+  (GET "/config.json" [] (frontend-config))
   
   (resources "/")
   (not-found "Not Found"))
 
-(def app (wrap-middleware #'routes))
+(def app (-> #'routes
+             wrap-middleware
+             wrap-json-response))

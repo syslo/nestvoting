@@ -1,8 +1,11 @@
 (ns nestvoting.core
-    (:require [reagent.core :as reagent :refer [atom]]
+    (:require-macros [cljs.core.async.macros :refer [go]])
+    (:require [cljs.core.async :refer [<!]]
+              [reagent.core :as reagent :refer [atom]]
               [reagent.session :as session]
               [secretary.core :as secretary :include-macros true]
-              [accountant.core :as accountant]))
+              [accountant.core :as accountant]
+              [nestvoting.config :as config :refer [in-config]]))
 
 ;; -------------------------
 ;; Views
@@ -33,7 +36,7 @@
 (defn mount-root []
   (reagent/render [current-page] (.getElementById js/document "app")))
 
-(defn init! []
+(defn init-app! []
   (accountant/configure-navigation!
     {:nav-handler
      (fn [path]
@@ -43,3 +46,7 @@
        (secretary/locate-route path))})
   (accountant/dispatch-current!)
   (mount-root))
+
+(defn init! []
+  (go (<! (config/init!))
+      (init-app!)))

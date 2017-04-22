@@ -7,12 +7,15 @@
               [accountant.core :as accountant]
               [nestvoting.config :as config :refer [in-config]]))
 
+
 ;; -------------------------
 ;; Views
 
+
+
 (defn home-page []
   [:div [:h2 "Welcome to nestvoting"]
-   [:div [:a {:href "/about"} "go to about page"]]])
+    [:div [:a {:href "/about"} "go to about page"]]])
 
 (defn about-page []
   [:div [:h2 "About nestvoting"]

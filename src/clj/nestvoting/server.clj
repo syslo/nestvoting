@@ -1,9 +1,8 @@
 (ns nestvoting.server
   (:require [nestvoting.handler :refer [app]]
-            [config.core :refer [env]]
+            [nestvoting.config :refer [in-config]]
             [ring.adapter.jetty :refer [run-jetty]])
-  (:gen-class))
+  (:gen-class)
 
  (defn -main [& args]
-   (let [port (Integer/parseInt (or (env :port) "3000"))]
-     (run-jetty app {:port port :join? false})))
+   (run-jetty app {:port (in-config :backend :port) :join? false})))

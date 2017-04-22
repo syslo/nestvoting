@@ -3,7 +3,7 @@
             [compojure.route :refer [not-found resources]]
             [hiccup.page :refer [include-js include-css html5]]
             [nestvoting.middleware :refer [wrap-middleware]]
-            [config.core :refer [env]]))
+            [nestvoting.config :refer [profile]]))
 
 (def mount-target
   [:div#app
@@ -17,7 +17,7 @@
    [:meta {:charset "utf-8"}]
    [:meta {:name "viewport"
            :content "width=device-width, initial-scale=1"}]
-   (include-css (if (env :dev) "/css/site.css" "/css/site.min.css"))])
+   (include-css (if (= profile :dev) "/css/site.css" "/css/site.min.css"))])
 
 (defn loading-page []
   (html5

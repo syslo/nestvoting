@@ -5,6 +5,7 @@
             :url "http://www.eclipse.org/legal/epl-v10.html"}
 
   :dependencies [[org.clojure/clojure "1.8.0"]
+                 [org.clojure/tools.cli "0.3.5"]
                  [ring-server "0.4.0"]
                  [reagent "0.6.1"]
                  [reagent-utils "0.2.1"]
@@ -100,4 +101,6 @@
                        :prep-tasks ["compile" ["cljsbuild" "once" "min"]]
                        :env {:production true}
                        :aot :all
-                       :omit-source true}})
+                       :omit-source true}}
+
+  :aliases {"manage" ["run" "-m" "nestvoting.manage"]})

@@ -6,6 +6,7 @@ pom.xml
 pom.xml.asc
 *.jar
 *.class
+/resources/public/**/*.min.*
 /.lein-*
 /.nrepl-port
 /resources/public/js

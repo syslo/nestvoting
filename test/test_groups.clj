@@ -12,9 +12,13 @@
     (is (G/= G (G/e G) (G/div G x3 x3)))
     (is (G/= G (G/* G (G/* G x1 x2) x3) (G/* G x1 (G/* G x2 x3))))))
 
+
+(defn random-cyclic-group-elem [G]
+  (G/pow G (G/g G) (algo/random N/_1 (N/- (G/order G) N/_1))))
+
 (defn cyclic-group-test [G n]
-  (let [get-elem #(G/pow G (G/g G) (algo/random N/_1 (N/- (G/order G) N/_1)))]
-    (doall (repeatedly n #(generic-group-test G get-elem))))
+  (doall (repeatedly n
+           (fn [] (generic-group-test G #(random-cyclic-group-elem G)))))
   (is (G/= G (G/pow G (G/g G) (G/order G)) (G/e G))))
 
 

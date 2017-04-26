@@ -6,7 +6,8 @@
 (defprotocol Group
   (e [G])
   (* [G x y])
-  (inv [G x]))
+  (inv [G x])
+  (= [G x y]))
 
 (defprotocol CyclicGroup
   (g [G])
@@ -28,6 +29,9 @@
 (defn pow [G x n]
   (algo/associative-pow #(* G %1 %2) (e G) x n))
 
+(defn *s [G xs]
+  (reduce #(* G %1 %2) (e G) xs))
+
 ;;
 ;; Schnorr group
 ;;
@@ -40,6 +44,7 @@
     (e [_] N/_1)
     (* [_ x y] (algo/mod-* x y p))
     (inv [G x] (pow G x (N/- (order G) N/_1)))
+    (= [_ x y] (N/= x y))
     CyclicGroup
     (g [_] g)
     (order [_] q)

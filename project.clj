@@ -17,6 +17,7 @@
                  [compojure "1.5.2"]
                  [hiccup "1.0.5"]
                  [aero "1.1.2"]
+                 [pandect "0.6.1"]
                  [org.clojure/clojurescript "1.9.495"
                   :scope "provided"]
                  [secretary "1.2.3"]

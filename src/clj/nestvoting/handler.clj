@@ -19,7 +19,8 @@
    [:meta {:name "viewport"
            :content "width=device-width, initial-scale=1"}]
    (include-css (if (= profile :dev) "/css/site.css" "/css/site.min.css"))
-   [:script {:src "http://peterolson.github.com/BigInteger.js/BigInteger.min.js"}]])
+   [:script {:src "http://peterolson.github.com/BigInteger.js/BigInteger.min.js"}]
+   [:script {:src "https://cdnjs.cloudflare.com/ajax/libs/jsSHA/2.2.0/sha256.js"}]])
 
 (defn loading-page []
   (html5

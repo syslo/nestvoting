@@ -18,15 +18,9 @@
 (defn mod-pow [x n p] (associative-pow #(mod-* %1 %2 p) N/_1 x n))
 
 
-(defn random-bits [size & {:keys [preffix suffix]}]
-  (let [size (- size (count preffix) (count suffix))
-        rand (apply str (repeatedly size #(str (rand-int 2))))
-        full (str preffix rand suffix)]
-    (N/val full :base 2)))
-
 (defn random
   ([min max] (N/+ min (random (N/- max min))))
-  ([max] (second (N/quotmod (random-bits (+ 5 (count (N/str max)))) max))))
+  ([max] (second (N/quotmod (N/random-bytes (+ 2 (count (N/str max :base 256)))) max))))
 
 
 (defn miller-rabin [p & {:keys [iterations]

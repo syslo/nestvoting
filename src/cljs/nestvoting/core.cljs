@@ -5,6 +5,7 @@
               [reagent.session :as session]
               [secretary.core :as secretary :include-macros true]
               [accountant.core :as accountant]
+              [nestvoting.math.signature]
               [nestvoting.config :as config :refer [in-config]]))
 
 

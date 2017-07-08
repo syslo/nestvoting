@@ -27,7 +27,8 @@
   :plugins [[lein-environ "1.0.2"]
             [lein-cljsbuild "1.1.1"]
             [lein-asset-minifier "0.2.7"
-             :exclusions [org.clojure/clojure]]]
+             :exclusions [org.clojure/clojure]]
+            [lein-doo "0.1.7"]]
 
   :ring {:handler nestvoting.handler/app
          :uberwar-name "nestvoting.war"}
@@ -45,6 +46,7 @@
 
   :source-paths ["src/clj" "src/cljc"]
   :resource-paths ["resources" "target/cljsbuild"]
+  :test-paths ["test/clj" "test/cljc"]
 
   :minify-assets
   {:assets
@@ -57,7 +59,11 @@
              {:output-to "target/cljsbuild/public/js/app.js"
               :output-dir "target/uberjar"
               :optimizations :advanced
-              :pretty-print  false}}
+              :pretty-print  false
+              :foreign-libs [{:file "public/nestvoting/dependencies/BigInteger.js"
+                              :provides ["nestvoting.dependencies.BigInteger"]}
+                             {:file "public/nestvoting/dependencies/sha256.js"
+                              :provides ["nestvoting.dependencies.sha256"]}]}}
             :app
             {:source-paths ["src/cljs" "src/cljc" "env/dev/cljs"]
              :compiler
@@ -67,7 +73,23 @@
               :output-dir "target/cljsbuild/public/js/out"
               :source-map true
               :optimizations :none
-              :pretty-print  true}}}}
+              :pretty-print  true
+              :foreign-libs [{:file "public/nestvoting/dependencies/BigInteger.js"
+                              :provides ["nestvoting.dependencies.BigInteger"]}
+                             {:file "public/nestvoting/dependencies/sha256.js"
+                              :provides ["nestvoting.dependencies.sha256"]}]}}
+            :test
+            {:source-paths ["src/cljs" "src/cljc" "test/cljs" "test/cljc"]
+             :compiler
+             {:main "runner"
+              :output-to "target/cljsbuild/public/js/app.js"
+              :output-dir "target/cljsbuild/test"
+              :optimizations :whitespace
+              :foreign-libs [{:file "public/nestvoting/dependencies/BigInteger.js"
+                              :provides ["nestvoting.dependencies.BigInteger"]}
+                             {:file "public/nestvoting/dependencies/sha256.js"
+                              :provides ["nestvoting.dependencies.sha256"]}]}}}}
+
 
   :figwheel
   {:http-server-root "public"
@@ -103,5 +125,8 @@
                        :env {:production true}
                        :aot :all
                        :omit-source true}}
+
+            :test {:dependencies [lein-doo "0.1.7"]}
+
 
   :aliases {"manage" ["run" "-m" "nestvoting.manage"]})

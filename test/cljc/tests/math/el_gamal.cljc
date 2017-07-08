@@ -1,8 +1,9 @@
-(ns test-el-gamal
+(ns tests.math.el-gamal
   (:require [nestvoting.math.group :as G]
             [nestvoting.math.el-gamal :as el-gamal]
-            [test-groups :refer [random-cyclic-group-elem]])
-  (:use clojure.test))
+            [tests.math.groups :refer [random-cyclic-group-elem generate-effective-random-group]])
+  #?(:clj (:use clojure.test))
+  #?(:cljs (:require-macros [cljs.test :refer [deftest is]])))
 
 
 (defn basic-encryption [G]
@@ -37,5 +38,5 @@
       (basic-encryption G)
       (homomorfic-encryption G)
       (shared-encryption G))
-    [(G/effective-random-group)
+    [;(generate-effective-random-group)
      (G/schnorr-generate 47 42)]))

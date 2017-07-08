@@ -1,4 +1,5 @@
-(ns nestvoting.math.bigint)
+(ns nestvoting.math.bigint
+  (:require nestvoting.dependencies.BigInteger))
 
 (defn val [s & {:keys [base] :or {base 10}}]
   (.bigInt js/window s base))

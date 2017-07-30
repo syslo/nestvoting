@@ -1,11 +1,13 @@
 (ns nestvoting.math.signature
   (:require [clojure.core.async :as async]
-            [clojure.string :as str])
+            [clojure.string :as str]
+            [cheshire.core :as json])
   (:import (java.security KeyPairGenerator Signature KeyFactory)
            (java.nio.charset StandardCharsets)
            (java.util Base64 Arrays)
-           (java.security.interfaces RSAPublicKey)
-           (java.security.spec RSAPublicKeySpec)))
+           (java.security.interfaces RSAPublicKey RSAPrivateKey)
+           (java.security.spec RSAPublicKeySpec)
+           (com.nimbusds.jose.jwk RSAKey)))
 
 
 (defn generate-rsa-key-pair []
@@ -35,38 +37,30 @@
       (repeat)
       (async/to-chan)))
 
-(defn- bi->b64u [bi]
-  (-> bi
-      .toByteArray
-      (as-> $ (loop [i 0] (if (zero? (aget $ i))
-                            (recur (inc i))
-                            (Arrays/copyOfRange $ i (count $)))))
-      (->> (.encode (Base64/getEncoder))
-           (new String))
-      (str/replace "+" "-")
-      (str/replace "/" "_")
-      (str/replace #"[=]*$" "")))
-
-(defn- b64u->bi [b64u]
-  (-> b64u
-      (str/replace "-" "+")
-      (str/replace "_" "/")
-      (.getBytes)
-      (->> (.decode (Base64/getDecoder))
-           (new BigInteger 1))))
-
-
 (defn export-public-rsa [^RSAPublicKey public-key]
-  (-> {:kty "RSA"
-       :e (-> public-key .getPublicExponent bi->b64u)
-       :n (-> public-key .getModulus bi->b64u)}
+  (-> (new RSAKey public-key nil nil nil nil nil nil nil)
+      (.toJSONString)
+      (json/parse-string)
       (repeat)
       (async/to-chan)))
 
 (defn import-public-rsa [data]
-  (let [spec (new RSAPublicKeySpec (-> data :n b64u->bi)
-                                   (-> data :e b64u->bi))]
-    (-> (KeyFactory/getInstance "RSA")
-        (.generatePublic spec)
-        (repeat)
-        (async/to-chan))))
+  (-> (json/generate-string data)
+      (RSAKey/parse)
+      (.toRSAPublicKey)
+      (repeat)
+      (async/to-chan)))
+
+(defn export-rsa-pair [{:keys [^RSAPublicKey public ^RSAPrivateKey private]}]
+  (-> (new RSAKey public private nil nil nil nil nil nil nil)
+      (.toJSONString)
+      (json/parse-string)
+      (repeat)
+      (async/to-chan)))
+
+(defn import-rsa-pair [data]
+  (-> (json/generate-string data)
+      (RSAKey/parse)
+      (as-> $ {:public (.toRSAPublicKey $) :private (.toRSAPrivateKey $)})
+      (repeat)
+      (async/to-chan)))

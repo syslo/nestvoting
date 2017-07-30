@@ -4,8 +4,17 @@
   (:import (java.util UUID)))
 
 
-(def table-schemas
+(defn table-schemas [dbtype]
   [(str
+     "CREATE TABLE rooms ("
+     "    id varchar(36) NOT NULL CONSTRAINT rooms_pk PRIMARY KEY,"
+     "    is_listed boolean NOT NULL"
+     ");")
+   (str
+     "CREATE TABLE timestamps ("
+     "    id integer NOT NULL CONSTRAINT timestamps_pk PRIMARY KEY AUTOINCREMENT"
+     ");")
+   (str
      "CREATE TABLE messages ("
      "    id varchar(36) NOT NULL CONSTRAINT messages_pk PRIMARY KEY,"
      "    timestamp integer NOT NULL,"
@@ -21,19 +30,10 @@
      "    REFERENCES timestamps (id)"
      "    ON DELETE RESTRICT "
      "    ON UPDATE RESTRICT"
-     ");")
-   (str
-     "CREATE TABLE rooms ("
-     "    id varchar(36) NOT NULL CONSTRAINT rooms_pk PRIMARY KEY,"
-     "    is_listed boolean NOT NULL"
-     ");")
-   (str
-     "CREATE TABLE timestamps ("
-     "    id integer NOT NULL CONSTRAINT timestamps_pk PRIMARY KEY AUTOINCREMENT"
      ");")])
 
 (defn create-tables [db]
-  (jdbc/db-do-commands db table-schemas))
+  (jdbc/db-do-commands db (table-schemas (keyword (:dbtype db)))))
 
 (defn- new-uuid []
   (.toString (UUID/randomUUID)))
@@ -49,10 +49,13 @@
       (assoc :id (new-uuid))
       (doto (->> (jdbc/insert! db :rooms)))))
 
-(defn get-rooms [db]
-  (let [q ["select * from rooms where is_listed = 1;"]]
-    (jdbc/query db q)))
-
+(defn get-rooms [db & {:keys [limit]}]
+  (->> [(str "select * from rooms where is_listed = 1"
+             (if (some? limit) " limit ?" ""))
+        limit]
+       (filter some?)
+       (vec)
+       (jdbc/query db)))
 
 (defn- serialize-message [message]
   (update-in message [:content] str))
@@ -65,17 +68,27 @@
       (assoc :id (new-uuid)
              :timestamp (new-timestamp db))
       (signer)
-      (serialize-message)
-      (doto (->> (jdbc/insert! db :messages)))))
+      (doto (serialize-message)
+            (->> (jdbc/insert! db :messages)))))
 
-(defn get-messages [db room_id]
-  (->> ["select * from messages where room_id = ? order by id;"
-        room_id]
+(defn get-messages [db room_id & {:keys [after limit]}]
+  (->> [(str "select * from messages where room_id = ?"
+             (if (some? after) " and timestamp > ?" "")
+             " order by timestamp"
+             (if (some? limit) " limit ?" ""))
+        room_id after limit]
+       (filter some?)
+       (vec)
        (jdbc/query db)
        (map deserialize-message)))
 
-(defn get-messages-after [db room_id after_timestamp]
-  (->> ["select * from messages where room_id = ? and timestamp > ? order by timestamp;"
-        room_id after_timestamp]
+(defn get-room [db id]
+  (->> ["select * from rooms where id = ?" id]
        (jdbc/query db)
-       (map deserialize-message)))
+       first))
+
+(defn get-message [db id]
+  (->> ["select * from messages where id = ?" id]
+       (jdbc/query db)
+       first
+       (deserialize-message)))

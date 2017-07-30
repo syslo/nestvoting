@@ -6,6 +6,7 @@
 
   :dependencies [[org.clojure/clojure "1.8.0"]
                  [org.clojure/tools.cli "0.3.5"]
+                 [cheshire "5.7.1"]
                  [ring-server "0.4.0"]
                  [reagent "0.6.1"]
                  [reagent-utils "0.2.1"]
@@ -18,6 +19,8 @@
                  [hiccup "1.0.5"]
                  [aero "1.1.2"]
                  [pandect "0.6.1"]
+                 [com.nimbusds/nimbus-jose-jwt "4.22"
+                  :exclusions [commons-io]]
                  [org.clojure/clojurescript "1.9.495"
                   :scope "provided"]
                  [secretary "1.2.3"]
@@ -25,6 +28,8 @@
                   :exclusions [org.clojure/tools.reader]]
                  [org.clojure/java.jdbc "0.7.0-beta5"]
                  [org.xerial/sqlite-jdbc "3.16.1"]]
+                 ;[mysql/mysql-connector-java "5.1.43"]
+                 ;[org.postgresql/postgresql "42.1.3"]]
 
   :plugins [[lein-environ "1.0.2"]
             [lein-cljsbuild "1.1.1"]
